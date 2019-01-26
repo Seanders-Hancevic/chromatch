@@ -3,6 +3,7 @@
 }
 
 .box {
+  border: white solid 2px;
   color: blue;
   background-color: black;
   height: 50px;
