@@ -4,7 +4,8 @@ import Unsplash from 'unsplash-js';
 import * as $ from 'axios';
 import { SketchPicker } from 'react-color';
 import Vibrant from 'node-vibrant'
-import Palette from 'react-palette';
+import Palette from './Palette';
+import getImagePalette from './getImagePalette'
 
 const dotenv = require('dotenv')
 
@@ -24,10 +25,6 @@ const Header = (props) => (
 )
 const SearchForm = (props) => (
   <div>
-    {/* <form className='search'>
-    <input className='inputField' value={props.value} onChange={props.changeHandler} />
-    <button className='searchButton' onClick={props.sendData}>Search</button>
-  </form> */}
     <form className="search-form" onSubmit={props.handleSubmit}>
       <label className="is-hidden" htmlFor="search">Search</label>
       <input
@@ -39,6 +36,9 @@ const SearchForm = (props) => (
       />
       <button type="submit" id="submit" className="search-button">
         <i className="material-icons icn-search">search</i>
+      </button>
+      <button type="submit" onClick={props.getPalette}>
+        <i className="material-icons icn-search">get palette</i>
       </button>
     </form>
   </div>
@@ -55,26 +55,6 @@ const ColorSelectBox = (props) => (
   <div className='bigBox Container'>Big box
     <div>
       <div className='color box one' style={props.style1} onClick={props.clickHandler1} >
-
-      </div>
-    </div>
-    <div>
-      <div className='color box two' style={props.style2} onClick={props.clickHandler2} >
-
-      </div>
-    </div>
-    <div>
-      <div className='color box three' style={props.style3} onClick={props.clickHandler3}  >
-
-      </div>
-    </div>
-    <div>
-      <div className='color box four' style={props.style4} onClick={props.clickHandler4} >
-
-      </div>
-    </div>
-    <div>
-      <div className='color box five' style={props.style5} onClick={props.clickHandler5} >
 
       </div>
     </div>
@@ -109,7 +89,7 @@ const AllResults = (props) => (
 const Img = props =>
   <li>
     <a href={props.link}>
-      <img src={props.url} alt="Unsplash Image here" />
+      <img onclick={props.getPalette} src={props.url} alt="Unsplash Image here" />
     </a>
     <p>
       Photo by
@@ -118,7 +98,29 @@ const Img = props =>
     </p>
   </li>;
 
-
+const ImgList = props => {
+	const results = props.data;
+	let imgs;
+	if (results.length > 0) {
+		imgs = results.map(img =>
+			<Img
+      getPalette={props.getPalette}
+				url={img.urls.thumb}
+				user={img.user.links.html}
+				name={img.user.name}
+				link={img.links.html}
+				key={img.id}
+			/>
+		);
+	} else {
+		imgs = <NoImgs />;
+	}
+	return (
+		<ul className="img-list">
+			{imgs}
+		</ul>
+	);
+};
 
 
 const NoImgs = props => (
@@ -138,30 +140,19 @@ class App extends Component {
 
   state = {
     input: '',
-    color: {
-      darkMuted: "",
-      darkVibrant: "",
-      lightMuted: "",
-      lightVibrant: "",
-      muted: "",
-      vibrant: ""
-    },
-    color1: '#fff',
-    color2: null,
-    color3: null,
-    color4: null,
-    color5: null,
+    color: '',
+    refinedColor: '',
     displayColorPicker1: false,
-    displayColorPicker2: false,
-    displayColorPicker3: false,
-    displayColorPicker4: false,
-    displayColorPicker5: false,
     imgs: [],
     results: [],
     searchText: '',
-    loadingState: true
-  }
+    loadingState: true,
+    palette: {},
+    loaded: false,
+    error: false
+  };
 
+ 
 
   onSearchChange = e => {
     this.setState({ searchText: e.target.value });
@@ -170,7 +161,7 @@ class App extends Component {
   handleSubmit = e => {
     e.preventDefault();
     this.setState({ imgs: '' })
-    this.performSearch(this.state.value);
+    this.performSearch(this.state.refinedColor);
     e.currentTarget.reset();
   };
 
@@ -182,10 +173,143 @@ class App extends Component {
 
 
   handleChangeComplete1 = (color, event) => {
+     this.setState({ color: color.hex });
 
-    this.setState({ color1: color.hex });
+
+    const stateColor = this.state.color
+
+    // var base_colors=["660000","990000","cc0000","cc3333","ea4c88","993399","663399","333399","0066cc","0099cc","66cccc","77cc33","669900","336600","666600","999900","cccc33","ffff00","ffcc33","ff9900","ff6600","cc6633","996633","663300","000000","999999","cccccc","ffffff"];
+var base_colors= [
+  ['#FFBF00', 'Amber' ],
+  ['#9966CC', 'Amethyst'],
+  ['#FBCEB1', 'Apricot'],	
+  ['#7FFFD4', 'Aquamarine'],	
+  ['#007FFF', 'Azure'],	
+  ['#89CFF0', 'Baby blue'],
+  ['#F5F5DC', 'Beige'],
+  ['#000000', 'Black'],
+  ['#0000FF', 'Blue'],
+  ['#0095B6', 'Blue-green'],
+  ['#8A2BE2', 'Blue-violet'],
+  ['#CD7F32', 'Bronze'],
+  ['#964B00', 'Brown'],
+  ['#800020', 'Burgundy'],
+  ['#007BA7', 'Cerulean'],		
+  ['#7FFF00', 'Chartreuse'],	
+  ['#7B3F00', 'Chocolate'],	
+  ['#0047AB', 'Cobalt blue'],		
+  ['#B87333', 'Copper'],
+  ['#F88379', 'Coral'],	
+  ['#DC143C', 'Crimson'],
+  ['#00FFFF', 'Cyan'],	
+  ['#7DF9FF', 'Electric blue'],	
+  ['#50C878', 'Emerald'],
+  ['#228B22', 'Forest green'],	
+  ['#FFD700', 'Golden'],	
+  ['#808080', 'Gray'],	
+  ['#008000', 'Green'],
+  ['#FC0FC0', 'Hot pink'],		
+  ['#4B0082', 'Indigo'],	
+  ['#FFFFF0', 'Ivory'],
+  ['#00A86B', 'Jade'],
+  ['#29AB87', 'Jungle green'],	
+  ['#B57EDC', 'Lavender'],		
+  ['#C8A2C8', 'Lilac'],	
+  ['#BFFF00', 'Lime green'],
+  ['#FF00FF', 'Magenta'],
+  ['#800000', 'Maroon'],	
+  ['#E0B0FF', 'Mauve'],
+  ['#000080', 'Navy blue'],
+  ['#808000', 'Olive green'],
+  ['#FF6600', 'Orange'],
+  ['#FF4500', 'Orange-red'],
+  ['#CCCCFF', 'Periwinkle'],
+  ['#1C39BB', 'Persian blue'],
+  ['#FD6C9E', 'Pink'],
+  ['#8E4585', 'Plum purple'],	
+  ['#800080', 'Purple'],
+  ['#E30B5C', 'Raspberry'],
+  ['#FF0000', 'Red'],		
+  ['#FF007F', 'Rose'],
+  ['#084C9E', 'Royal blue'],
+  ['#E0115F', 'Ruby'],
+  ['#FA8072', 'Light pink'],		
+  ['#0F52BA', 'Sapphire blue'],
+  ['#FF2400', 'Scarlet red'],
+  ['#C0C0C0', 'Silver gray'],
+  ['#708090', 'Slate gray'],	
+  ['#00FF7F', 'Light green'],	
+  ['#D2B48C', 'Tan'],	
+  ['#483C32', 'Taupe'],	
+  ['#008080', 'Teal'],
+  ['#40E0D0', 'Turquoise'],		
+  ['#8F00FF', 'Violet'],
+  ['#F5DEB3', 'Wheat'],		
+  ['#FFFFFF', 'White'],	
+  ['#FFFF00', 'Yellow']
+  ]
+    //Convert to RGB, then R, G, B
+    var color_rgb = hex2rgb(stateColor)
+    var color_r = color_rgb.split(',')[0];
+    var color_g = color_rgb.split(',')[1];
+    var color_b = color_rgb.split(',')[2];
+
+    //Create an emtyp array for the difference betwwen the colors
+    var differenceArray=[];
+
+    //Function to find the smallest value in an array
+    Array.min = function( array ){
+           return Math.min.apply( Math, array );
+    };
+
+
+    //Convert the HEX color in the array to RGB colors, split them up to R-G-B, then find out the difference between the "color" and the colors in the array
+    base_colors.forEach(function(value, index) {
+      var base_color_rgb = hex2rgb(value[0]);
+      var base_colors_r = base_color_rgb.split(',')[0];
+      var base_colors_g = base_color_rgb.split(',')[1];
+      var base_colors_b = base_color_rgb.split(',')[2];
+
+      //Add the difference to the differenceArray
+      differenceArray.push(Math.sqrt((color_r-base_colors_r)*(color_r-base_colors_r)+(color_g-base_colors_g)*(color_g-base_colors_g)+(color_b-base_colors_b)*(color_b-base_colors_b)));
+   
+  });
+
+    //Get the lowest number from the differenceArray
+    var lowest = Array.min(differenceArray);
+   
+
+    //Get the index for that lowest number
+    var index = differenceArray.indexOf(lowest);
+
+    //Function to convert HEX to RGB
+    function hex2rgb( color) {
+   
+
+        var r,g,b;
+        if ( color.charAt(0) === '#' ) {
+            color = color.substr(1);
+        }
+
+        r = color.charAt(0) + color.charAt(1);
+        g = color.charAt(2) + color.charAt(3);
+        b = color.charAt(4) + color.charAt(5);
+
+        r = parseInt( r,16 );
+        g = parseInt( g,16 );
+        b = parseInt( b ,16);
+        return r+','+g+','+b;
+    }
+
+    //Return the HEX code
+    console.log(base_colors[index][1])
+    this.setState({refinedColor: base_colors[index][1]})
+    // return base_colors[index][1];
+   
+   
   };
 
+  
   handleOpenColorWheel1 = () => {
     this.setState({ displayColorPicker1: !this.state.displayColorPicker1 })
   };
@@ -194,120 +318,138 @@ class App extends Component {
     this.setState({ displayColorPicker1: false })
   };
 
-  handleChangeComplete2 = (color) => {
-    this.setState({ color2: color.hex });
-  };
-
-  handleOpenColorWheel2 = () => {
-    this.setState({ displayColorPicker2: !this.state.displayColorPicker2 })
-  };
-
-  handleClose2 = () => {
-    this.setState({ displayColorPicker2: false })
-  };
-
-
-  handleChangeComplete3 = (color) => {
-    this.setState({ color3: color.hex });
-  };
-
-  handleOpenColorWheel3 = () => {
-    this.setState({ displayColorPicker3: !this.state.displayColorPicker3 })
-  };
-
-  handleClose3 = () => {
-    this.setState({ displayColorPicker3: false })
-  };
-
-  handleChangeComplete4 = (color) => {
-    this.setState({ color4: color.hex });
-  };
-
-  handleOpenColorWheel4 = () => {
-    this.setState({ displayColorPicker4: !this.state.displayColorPicker4 })
-  };
-
-  handleClose4 = () => {
-    this.setState({ displayColorPicker4: false })
-  };
-
-  handleChangeComplete5 = (color) => {
-    this.setState({ color5: color.hex });
-  };
-
-  handleOpenColorWheel5 = () => {
-    this.setState({ displayColorPicker5: !this.state.displayColorPicker5 })
-  };
-
-  handleClose5 = () => {
-    this.setState({ displayColorPicker5: false })
-  };
-
-
-
-
-
-
-  handleResults = () => {
-    unsplashId.photos.listPhotos(2, 15, "latest")
-      .then(json => {
-        // this.setState({results: json})
-        console.log(json)
-      });
-  }
-
-
-
-  async componentDidMount() {
-    // const results = await this.performSearch();
-    this.ImgList()
-  }
-
-  ImgList = (query = 'sun') => {
-    $
-    .get(
-      `https://api.unsplash.com/search/photos/?page=1&per_page=10&query=${query}&client_id=b814057aac4ca06658cabe4ed1f1e80bf7c2553a2f616bbbabe7a2d6e9e79f1a`
-    )
-    .then(data => {
-      
-      let imgs;
-      console.log(data)
-       data.data.results.map(img => (
-          <Palette image={img.urls.full}>
+  // getPalette = () => {
+  
+  //     'use strict';
+  //     console.log(this.state.imgs[0])
+  //     var img = this.state.imgs[0],
+  //         list = document.querySelector('ul'),
+  //         section = document.querySelector('section'),
+  //         paletteReady = false;
+  //         console.log(img)
           
-            {
-              palette => this.setState({ color: palette.vibrant})
-  //             (
-             
-  //           // console.log(palette),
-  //           //       <Img
-                
-  //           //         url={img.urls.thumb}
-  //           //         user={img.user.links.html}
-  //           //         name={img.user.name}
-  //           //         link={img.links.html}
-  //           //         key={img.id}
-  //           //       /> 
-  // //  this.setState({color: palette.vibrant})
-  //             )
-            }
-          </Palette>
-      ))
-      // } else {
-      //   imgs = <NoImgs />;
-      // }
-      return (
-        <ul className="img-list">
-          {imgs}
-        </ul>
-      );})
-    };
-   
-    
+  //     // img.addEventListener('load', function() {
+  //     //     if ( !paletteReady )
+  //     //         getPalette();
+  //     // });
+      
+  //     if (!paletteReady)
+  //         getPalette();
+      
+  //     function getPalette() {
+  //         paletteReady = true;
+          
+  //         var vibrant = new Vibrant(img),
+  //             swatches = vibrant.swatches(),
+  //             listFragment = new DocumentFragment();
+          
+  //         for ( var swatch in swatches ) {
+  //             if (swatches.hasOwnProperty(swatch) && swatches[swatch]) { 
+  //                 console.log(swatch, swatches[swatch].getHex());
+  //                 var li = document.createElement('li'),
+  //                     p = document.createElement('p'),
+  //                     small = document.createElement('small');
+                  
+  //                 p.textContent = swatches[swatch].getHex();
+  //                 p.style.color = swatches[swatch].getTitleTextColor();
+  //                 small.textContent = swatch;
+  //                 small.style.color = swatches[swatch].getBodyTextColor();
+  //                 li.style.backgroundColor = swatches[swatch].getHex();
+  //                 li.appendChild(p);
+  //                 li.appendChild(small);
+  //                 listFragment.appendChild(li);
+  //             }
+  //         }
+          
+  //         list.appendChild(listFragment);
+          
+  //         if (swatches['DarkVibrant']) {
+  //             section.style.backgroundColor = swatches['DarkVibrant'].getHex();
+  //         }
+  //     }
+  // } ;
 
-  performSearch = (query = 'sun') => {
- 
+  getImagePalette = (img) =>{
+    console.log(img)
+
+    return Vibrant.from(img).getPalette()
+      .then(response => {
+        const keys = Object.keys(response);
+        const addPalette = (acc, paletteName) => ({
+          ...acc,
+          [camelCase(paletteName)]: response[paletteName] && response[paletteName].getHex()
+        })
+        const colorPallete = keys.reduce(addPalette, {})
+  
+        return colorPallete
+      })
   }
+
+  getPalette = () => {
+    describe('<Palette />', () => {
+      const image = 'default'
+    
+      describe('shallow', () => {
+        it('should not call the children when loaded=false', () => {
+          const wrapper = shallow(
+            <Palette image={image} />
+          )
+    
+          expect(wrapper.state('loaded')).toBeFalsy();
+          expect(wrapper.children()).toHaveLength(0)
+        })
+      })
+    
+      describe('mount', () => {
+        const children = jest.fn((palette) => <div />)
+        const wrapper = mount(
+          <Palette image={image}>
+            {children}
+          </Palette>
+        )
+    
+        it('calls getImagePalette with the image prop', async () => {
+          await expect(getImagePalette).toBeCalledWith(image)
+        })
+    
+        it('calls the children with the palette', async () => {
+          await expect(children).toBeCalledWith(palettes.default)
+        })
+    
+        it('renders the children', async () => {
+          await expect(wrapper.contains(<div />)).toEqual(true)
+        })
+    
+        it('updates the palette when the image change', async () => {
+          const newImage = 'secondary'
+    
+          wrapper.setProps({ image: newImage})
+    
+          await expect(getImagePalette).toBeCalledWith(newImage)
+          await expect(children).toBeCalledWith(palettes.secondary)
+        })
+      });
+    })
+  }
+  
+  
+
+
+
+	performSearch = (query = this.state.refinedColor) => {
+		$
+			.get(
+				`https://api.unsplash.com/search/photos/?page=1&per_page=10&query=${query}&client_id=b814057aac4ca06658cabe4ed1f1e80bf7c2553a2f616bbbabe7a2d6e9e79f1a`
+			)
+			.then(data => {
+        console.log(data)
+				this.setState({ imgs: data.data.results, loadingState: false });
+			})
+			.catch(err => {
+				console.log('Error happened during fetching!', err);
+			});
+	};
+    
 
 
 
@@ -324,9 +466,12 @@ class App extends Component {
       bottom: '0px',
       left: '0px',
     }
-
+    
+    const { children } = this.props
+    const { palette, loaded } = this.state
 
     return (
+      
       <div>
         <Header />
         <SearchForm
@@ -336,6 +481,7 @@ class App extends Component {
           sendData={this.newPhoto}
           handleSubmit={this.handleSubmit}
           onSearch={this.performSearch}
+          getPalette={this.getPalette}
         />
         {/* <div className="main-content">
           {this.state.loadingState
@@ -348,63 +494,32 @@ class App extends Component {
           <SketchPicker
             color={this.state.color}
             onChangeComplete={this.handleChangeComplete1}
+            handleHex={this.getSimilarColors}
           />
         </div> : null}
 
-        {this.state.displayColorPicker2 ? <div style={popover}>
-          <div style={cover} onClick={this.handleClose2} />
-          <SketchPicker
-            color={this.state.color}
-            onChangeComplete={this.handleChangeComplete2} />
-        </div> : null}
-
-        {this.state.displayColorPicker3 ? <div style={popover}>
-          <div style={cover} onClick={this.handleClose3} />
-          <SketchPicker
-            color={this.state.color}
-            onChangeComplete={this.handleChangeComplete3} />
-        </div> : null}
-
-        {this.state.displayColorPicker4 ? <div style={popover}>
-          <div style={cover} onClick={this.handleClose4} />
-          <SketchPicker
-            color={this.state.color}
-            onChangeComplete={this.handleChangeComplete4} />
-        </div> : null}
-
-        {this.state.displayColorPicker5 ? <div style={popover}>
-          <div style={cover} onClick={this.handleClose5} />
-          <SketchPicker
-            color={this.state.color}
-            onChangeComplete={this.handleChangeComplete5} />
-        </div> : null}
-
+       
         <ColorSelectBox
-          style1={{ backgroundColor: this.state.color1 }}
-          style2={{ backgroundColor: this.state.color2 }}
-          style3={{ backgroundColor: this.state.color3 }}
-          style4={{ backgroundColor: this.state.color4 }}
-          style5={{ backgroundColor: this.state.color5 }}
-
+          style1={{ backgroundColor: this.state.color }}
           clickHandler1={this.handleOpenColorWheel1}
-          clickHandler2={this.handleOpenColorWheel2}
-          clickHandler3={this.handleOpenColorWheel3}
-          clickHandler4={this.handleOpenColorWheel4}
-          clickHandler5={this.handleOpenColorWheel5}
-
         />
         <Img />
 
         <TopResults results={this.state.results} />
         <AllResults />
         <div className="main-content">
-          {this.ImgList()}
-        </div>
-
+					{this.state.loadingState
+						? <p>Loading</p>
+						: <ImgList data={this.state.imgs} 
+            />}
+				</div>
 
       </div>
+      
     );
+    
   }
+  
 }
 
 export default App;
