@@ -4,8 +4,10 @@ import Unsplash from 'unsplash-js';
 import * as $ from 'axios';
 import { SketchPicker } from 'react-color';
 import Vibrant from 'node-vibrant'
-import Palette from './Palette';
+// import Palette from './Palette';
 import getImagePalette from './getImagePalette'
+import Palette from 'react-palette';
+import camelCase from 'lodash/camelCase'
 
 const dotenv = require('dotenv')
 
@@ -89,13 +91,14 @@ const AllResults = (props) => (
 const Img = props =>
   <li>
     <a href={props.link}>
-      <img onclick={props.getPalette} src={props.url} alt="Unsplash Image here" />
+      <img src={props.url} alt="Unsplash Image here" />
     </a>
     <p>
       Photo by
 			<a href={props.user}>{props.name}</a>
       <a href={props.link}> See on Unsplash</a>
     </p>
+    <button onClick = {() =>{props.handleSave(props.id)}}>Save</button>
   </li>;
 
 const ImgList = props => {
@@ -104,6 +107,8 @@ const ImgList = props => {
 	if (results.length > 0) {
 		imgs = results.map(img =>
 			<Img
+      id = {img.id}
+      handleSave ={props.saveImage}
       getPalette={props.getPalette}
 				url={img.urls.thumb}
 				user={img.user.links.html}
@@ -132,7 +137,7 @@ const NoImgs = props => (
 
 
 
-
+const array = []
 
 
 
@@ -152,7 +157,9 @@ class App extends Component {
     error: false
   };
 
- 
+//  componentDidMount(){
+// this.updatePalette('https://images.unsplash.com/photo-1420207452976-ae61088134b7?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&ixid=eyJhcHBfaWQiOjUwNDk2fQ')
+//  }
 
   onSearchChange = e => {
     this.setState({ searchText: e.target.value });
@@ -181,8 +188,7 @@ class App extends Component {
     // var base_colors=["660000","990000","cc0000","cc3333","ea4c88","993399","663399","333399","0066cc","0099cc","66cccc","77cc33","669900","336600","666600","999900","cccc33","ffff00","ffcc33","ff9900","ff6600","cc6633","996633","663300","000000","999999","cccccc","ffffff"];
 var base_colors= [
   ['#FFBF00', 'Amber' ],
-  ['#9966CC', 'Amethyst'],
-  ['#FBCEB1', 'Apricot'],	
+  ['#9966CC', 'Amethyst'],	
   ['#7FFFD4', 'Aquamarine'],	
   ['#007FFF', 'Azure'],	
   ['#89CFF0', 'Baby blue'],
@@ -198,8 +204,7 @@ var base_colors= [
   ['#7FFF00', 'Chartreuse'],	
   ['#7B3F00', 'Chocolate'],	
   ['#0047AB', 'Cobalt blue'],		
-  ['#B87333', 'Copper'],
-  ['#F88379', 'Coral'],	
+  ['#B87333', 'Copper'],	
   ['#DC143C', 'Crimson'],
   ['#00FFFF', 'Cyan'],	
   ['#7DF9FF', 'Electric blue'],	
@@ -224,7 +229,7 @@ var base_colors= [
   ['#FF6600', 'Orange'],
   ['#FF4500', 'Orange-red'],
   ['#CCCCFF', 'Periwinkle'],
-  ['#1C39BB', 'Persian blue'],
+  ['#1C39BB', 'light blue'],
   ['#FD6C9E', 'Pink'],
   ['#8E4585', 'Plum purple'],	
   ['#800080', 'Purple'],
@@ -239,7 +244,7 @@ var base_colors= [
   ['#C0C0C0', 'Silver gray'],
   ['#708090', 'Slate gray'],	
   ['#00FF7F', 'Light green'],	
-  ['#D2B48C', 'Tan'],	
+  ['#D2B48C', 'Light brown'],	
   ['#483C32', 'Taupe'],	
   ['#008080', 'Teal'],
   ['#40E0D0', 'Turquoise'],		
@@ -318,63 +323,13 @@ var base_colors= [
     this.setState({ displayColorPicker1: false })
   };
 
-  // getPalette = () => {
-  
-  //     'use strict';
-  //     console.log(this.state.imgs[0])
-  //     var img = this.state.imgs[0],
-  //         list = document.querySelector('ul'),
-  //         section = document.querySelector('section'),
-  //         paletteReady = false;
-  //         console.log(img)
-          
-  //     // img.addEventListener('load', function() {
-  //     //     if ( !paletteReady )
-  //     //         getPalette();
-  //     // });
-      
-  //     if (!paletteReady)
-  //         getPalette();
-      
-  //     function getPalette() {
-  //         paletteReady = true;
-          
-  //         var vibrant = new Vibrant(img),
-  //             swatches = vibrant.swatches(),
-  //             listFragment = new DocumentFragment();
-          
-  //         for ( var swatch in swatches ) {
-  //             if (swatches.hasOwnProperty(swatch) && swatches[swatch]) { 
-  //                 console.log(swatch, swatches[swatch].getHex());
-  //                 var li = document.createElement('li'),
-  //                     p = document.createElement('p'),
-  //                     small = document.createElement('small');
-                  
-  //                 p.textContent = swatches[swatch].getHex();
-  //                 p.style.color = swatches[swatch].getTitleTextColor();
-  //                 small.textContent = swatch;
-  //                 small.style.color = swatches[swatch].getBodyTextColor();
-  //                 li.style.backgroundColor = swatches[swatch].getHex();
-  //                 li.appendChild(p);
-  //                 li.appendChild(small);
-  //                 listFragment.appendChild(li);
-  //             }
-  //         }
-          
-  //         list.appendChild(listFragment);
-          
-  //         if (swatches['DarkVibrant']) {
-  //             section.style.backgroundColor = swatches['DarkVibrant'].getHex();
-  //         }
-  //     }
-  // } ;
-
-  getImagePalette = (img) =>{
-    console.log(img)
-
-    return Vibrant.from(img).getPalette()
+ 
+   getImagePalette2 = (url) => {
+    //  const imgUrl = this.state.imgs[0].urls.full
+    return Vibrant.from(url).getPalette()
       .then(response => {
         const keys = Object.keys(response);
+        console.log(response)
         const addPalette = (acc, paletteName) => ({
           ...acc,
           [camelCase(paletteName)]: response[paletteName] && response[paletteName].getHex()
@@ -383,54 +338,129 @@ var base_colors= [
   
         return colorPallete
       })
-  }
+    }
 
-  getPalette = () => {
-    describe('<Palette />', () => {
-      const image = 'default'
+  getImagePalette = () => {
     
-      describe('shallow', () => {
-        it('should not call the children when loaded=false', () => {
-          const wrapper = shallow(
-            <Palette image={image} />
-          )
+    this.state.imgs.map(image => (
     
-          expect(wrapper.state('loaded')).toBeFalsy();
-          expect(wrapper.children()).toHaveLength(0)
-        })
-      })
+      Vibrant.from(image).getPalette((err, palette) => console.log(palette))
+
+    ))
+   
+      // 'use strict';
+      // console.log(this.state.imgs[0])
+  
+      // var img = this.state.imgs[0],
+      //     list = document.querySelector('ul'),
+      //     section = document.querySelector('section'),
+      //     paletteReady = false;
+      //     console.log(img)
+          
+      // // img.addEventListener('load', function() {
+      // //     if ( !paletteReady )
+      // //         getPalette();
+      // // });
+      
+      // if (!paletteReady)
+      //     getPalette();
+      
+      // function getPalette() {
+      //     paletteReady = true;
+     
+      //     var vibrant = Vibrant.result
+      //     debugger
+      //          var swatches = vibrant.swatches(),
+      //         listFragment = new DocumentFragment();
+      //         console.log(vibrant)
+      //     for ( var swatch in swatches ) {
+      //         if (swatches.hasOwnProperty(swatch) && swatches[swatch]) { 
+      //             console.log(swatch, swatches[swatch].getHex());
+      //             var li = document.createElement('li'),
+      //                 p = document.createElement('p'),
+      //                 small = document.createElement('small');
+                  
+      //             p.textContent = swatches[swatch].getHex();
+      //             p.style.color = swatches[swatch].getTitleTextColor();
+      //             small.textContent = swatch;
+      //             small.style.color = swatches[swatch].getBodyTextColor();
+      //             li.style.backgroundColor = swatches[swatch].getHex();
+      //             li.appendChild(p);
+      //             li.appendChild(small);
+      //             listFragment.appendChild(li);
+      //         }
+      //     }
+          
+      //     list.appendChild(listFragment);
+          
+      //     if (swatches['DarkVibrant']) {
+      //         section.style.backgroundColor = swatches['DarkVibrant'].getHex();
+      //     }
+      // }
+  } ;
+
+  // getImagePalette = (img) =>{
+  //   console.log(img)
+
+  //   return Vibrant.from(img).getPalette()
+  //     .then(response => {
+  //       const keys = Object.keys(response);
+  //       const addPalette = (acc, paletteName) => ({
+  //         ...acc,
+  //         [camelCase(paletteName)]: response[paletteName] && response[paletteName].getHex()
+  //       })
+  //       const colorPallete = keys.reduce(addPalette, {})
+  
+  //       return colorPallete
+  //     })
+  // }
+
+  // getPalette = () => {
+  //   describe('<Palette />', () => {
+  //     const image = 'default'
     
-      describe('mount', () => {
-        const children = jest.fn((palette) => <div />)
-        const wrapper = mount(
-          <Palette image={image}>
-            {children}
-          </Palette>
-        )
+  //     describe('shallow', () => {
+  //       it('should not call the children when loaded=false', () => {
+  //         const wrapper = shallow(
+  //           <Palette image={image} />
+  //         )
     
-        it('calls getImagePalette with the image prop', async () => {
-          await expect(getImagePalette).toBeCalledWith(image)
-        })
+  //         expect(wrapper.state('loaded')).toBeFalsy();
+  //         expect(wrapper.children()).toHaveLength(0)
+  //       })
+  //     })
     
-        it('calls the children with the palette', async () => {
-          await expect(children).toBeCalledWith(palettes.default)
-        })
+  //     describe('mount', () => {
+  //       const children = jest.fn((palette) => <div />)
+  //       const wrapper = mount(
+  //         <Palette image={image}>
+  //           {children}
+  //         </Palette>
+  //       )
     
-        it('renders the children', async () => {
-          await expect(wrapper.contains(<div />)).toEqual(true)
-        })
+  //       it('calls getImagePalette with the image prop', async () => {
+  //         await expect(getImagePalette).toBeCalledWith(image)
+  //       })
     
-        it('updates the palette when the image change', async () => {
-          const newImage = 'secondary'
+  //       it('calls the children with the palette', async () => {
+  //         await expect(children).toBeCalledWith(palettes.default)
+  //       })
     
-          wrapper.setProps({ image: newImage})
+  //       it('renders the children', async () => {
+  //         await expect(wrapper.contains(<div />)).toEqual(true)
+  //       })
     
-          await expect(getImagePalette).toBeCalledWith(newImage)
-          await expect(children).toBeCalledWith(palettes.secondary)
-        })
-      });
-    })
-  }
+  //       it('updates the palette when the image change', async () => {
+  //         const newImage = 'secondary'
+    
+  //         wrapper.setProps({ image: newImage})
+    
+  //         await expect(getImagePalette).toBeCalledWith(newImage)
+  //         await expect(children).toBeCalledWith(palettes.secondary)
+  //       })
+  //     });
+  //   })
+  // }
   
   
 
@@ -450,6 +480,18 @@ var base_colors= [
 			});
 	};
     
+  savePhoto = (id) => {
+    const image = this.state.imgs.find((elem)=>elem.id === id)
+    const saveImage = {
+      id: image.id,
+    color: image.color,
+    height: image.height,
+    width: image.width,
+    likes: image.likes
+    }
+    $
+    .post(`/api/matchingPic/`, {data: saveImage})
+  }
 
 
 
@@ -481,7 +523,7 @@ var base_colors= [
           sendData={this.newPhoto}
           handleSubmit={this.handleSubmit}
           onSearch={this.performSearch}
-          getPalette={this.getPalette}
+          getPalette={this.getImagePalette}
         />
         {/* <div className="main-content">
           {this.state.loadingState
@@ -497,7 +539,7 @@ var base_colors= [
             handleHex={this.getSimilarColors}
           />
         </div> : null}
-
+ {/* {this.getImagePalette("https://images.unsplash.com/photo-1420207452976-ae61088134b7?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&ixid=eyJhcHBfaWQiOjUwNDk2fQ")} */}
        
         <ColorSelectBox
           style1={{ backgroundColor: this.state.color }}
@@ -510,7 +552,7 @@ var base_colors= [
         <div className="main-content">
 					{this.state.loadingState
 						? <p>Loading</p>
-						: <ImgList data={this.state.imgs} 
+						: <ImgList saveImage={this.savePhoto} data={this.state.imgs} 
             />}
 				</div>
 
