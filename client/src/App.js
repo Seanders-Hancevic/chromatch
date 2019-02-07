@@ -3,6 +3,7 @@ import './App.css';
 import Unsplash from 'unsplash-js';
 import * as $ from 'axios';
 import { SketchPicker } from 'react-color';
+import logo from './assets/rainbowM.jpg'
 import Vibrant from 'node-vibrant'
 import Palette from 'react-palette';
 
@@ -19,8 +20,11 @@ const unsplashId = new Unsplash({
 
 const Header = (props) => (
   <div className='header'>
-    <h1 className='headerText'>ChroMatch</h1>
+  <div className ='header-logo'>
+   <h3 className ='headertext'>chro</h3> <img className='rainbowM'src={logo}/><h3 className ='headertext'>atch</h3>
+   </div>
     <ImgListSlide data={props.data} />
+   
   </div>
 )
 
@@ -86,7 +90,7 @@ const ImgListSlide = props => {
 
 
 const ColorSelectBox = (props) => (
-  <div className='bigBox Container'>
+  <div className='bigBox main'>
     Pick a color!
     <div>
       <div className='color-box one' style={props.style1} onClick={props.clickHandler1} >
@@ -159,6 +163,13 @@ const generatePalettes = (img) => (
   </Palette>
 );
 
+const NextPrev = (props) => (
+  <div className='list-container' >
+    <button className=''>Previous Page</button><button className=''>Next Page</button>
+  </div>
+  
+)
+
 
 
 const ImgList = props => {
@@ -179,12 +190,19 @@ const ImgList = props => {
     );
   }
   return (
-    <div className='list-container'>
+    <div>
+<div className='list-container'>
       <ul className="img-list" >
 
         {imgs}
+      {/* <NextPrev /> */}
       </ul>
+  
     </div>
+
+    </div>
+    
+ 
 
   );
 };
@@ -207,9 +225,6 @@ class App extends Component {
     error: false
   };
 
-  //  componentDidMount(){
-  // this.updatePalette('https://images.unsplash.com/photo-1420207452976-ae61088134b7?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb&ixid=eyJhcHBfaWQiOjUwNDk2fQ')
-  //  }
 
   onSearchChange = e => {
     this.setState({ searchText: e.target.value });
@@ -228,14 +243,12 @@ class App extends Component {
   }
 
 
-
   handleChangeComplete1 = (color, event) => {
     this.setState({ color: color.hex });
 
 
     const stateColor = this.state.color
 
-    // var base_colors=["660000","990000","cc0000","cc3333","ea4c88","993399","663399","333399","0066cc","0099cc","66cccc","77cc33","669900","336600","666600","999900","cccc33","ffff00","ffcc33","ff9900","ff6600","cc6633","996633","663300","000000","999999","cccccc","ffffff"];
     var base_colors = [
       ['#FFBF00', 'Amber'],
       ['#9966CC', 'Amethyst'],
@@ -249,7 +262,7 @@ class App extends Component {
       ['#8A2BE2', 'Blue-violet'],
       ['#CD7F32', 'Bronze'],
       ['#964B00', 'Brown'],
-      ['#E7921B', 'Burnt Orange'],
+      ['#AE5E0F', 'Burnt Orange'],
       ['#800020', 'Burgundy'],
       ['#007BA7', 'Cerulean'],
       ['#7B3F00', 'Chocolate'],
@@ -257,6 +270,7 @@ class App extends Component {
       ['#B87333', 'Copper'],
       ['#DC143C', 'Crimson'],
       ['#00FFFF', 'Cyan'],
+      ['#46423C', 'Dark grey'],
       ['#7DF9FF', 'Electric blue'],
       ['#50C878', 'Emerald'],
       ['#228B22', 'Forest green'],
@@ -268,21 +282,24 @@ class App extends Component {
       ['#FFFFF0', 'Ivory'],
       ['#00A86B', 'Jade'],
       ['#29AB87', 'Jungle green'],
-      ['#B57EDC', 'Lavender'],
+      ['#CBA47D', 'Khaki'],
+      ['#B57EDC', 'Mauve'],
       ['#C8A2C8', 'Lilac'],
       ['#BFFF00', 'Lime green'],
       ['#FF00FF', 'Magenta'],
       ['#800000', 'Maroon'],
       ['#E0B0FF', 'Mauve'],
+      ['#B99090', 'Mauve'],
       ['#000080', 'Navy blue'],
       ['#808000', 'Olive green'],
       ['#FF6600', 'Orange'],
+      ['#ED6D30', 'Orange'],
       ['#FF4500', 'Orange-red'],
       ['#CCCCFF', 'Periwinkle'],
       ['#1C39BB', 'light blue'],
       ['#678B42', 'Pea green'],
       ['#FD6C9E', 'Pink'],
-      ['#8E4585', 'Plum purple'],
+      ['#9F25AE', 'Purple'],
       ['#800080', 'Purple'],
       ['#E30B5C', 'Raspberry'],
       ['#FF0000', 'Red'],
@@ -291,12 +308,13 @@ class App extends Component {
       ['#E0115F', 'Ruby'],
       ['#FA8072', 'Light pink'],
       ['#0F52BA', 'Sapphire blue'],
+      ['#2CBCB2', 'Seafoam'],
       ['#FF2400', 'Scarlet red'],
       ['#C0C0C0', 'Silver gray'],
       ['#708090', 'Slate gray'],
       ['#00FF7F', 'Light green'],
       ['#D2B48C', 'Light brown'],
-      ['#483C32', 'Taupe'],
+      ['#483C32', 'Black'],
       ['#008080', 'Teal'],
       ['#40E0D0', 'Turquoise'],
       ['#8F00FF', 'Violet'],
@@ -361,8 +379,6 @@ class App extends Component {
     console.log(base_colors[index][1])
     this.setState({ refinedColor: base_colors[index][1] })
     // return base_colors[index][1];
-
-
   };
 
 
@@ -487,8 +503,9 @@ class App extends Component {
           {this.state.loadingState
             ? <p></p>
             : <ImgList saveImage={this.savePhoto} data={this.state.imgs}
-            />}
+            />  }<NextPrev />
         </div>
+       
       </div>
 
     );
