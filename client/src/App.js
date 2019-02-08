@@ -273,7 +273,7 @@ class App extends Component {
       ['#46423C', 'Dark grey'],
       ['#7DF9FF', 'Electric blue'],
       ['#50C878', 'Emerald'],
-      ['#228B22', 'Forest green'],
+      ['#228B22', 'Dark green'],
       ['#FFD700', 'Golden'],
       ['#808080', 'Gray'],
       ['#008000', 'Green'],
