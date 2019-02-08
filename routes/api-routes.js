@@ -1,5 +1,6 @@
 
 const db = require('../models/matchingPic');
+var cors = require('cors')
 
 // ROUTING
 module.exports = function (app) {
