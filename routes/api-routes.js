@@ -1,4 +1,4 @@
-import './App.js';
+require('./App.js');
 
 const db = require('../models/matchingPic');
 var cors = require('cors')
