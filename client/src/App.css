@@ -15,37 +15,79 @@
 }
 
 .header {
-
-  position: absolute;
+  display: grid;
+  grid-template-columns: 30% 70%;
+  grid-template-rows: repeat(1,1fr);
 width: 100%;
 height: 225px;
 margin: auto;
 background-color: gray;
 }
+
+.logo-container {
+  width: 30%;
+  height:225px;
+}
+ 
 .header-logo{
+  top: 60%;
+  left: 10%;
   position: relative;
-  top: 55%;
   justify-content: center;
-  margin-left: 2%;
   display: grid;
   background-color: black;
-  grid-template-columns: repeat(3,100px);
+  grid-template-columns: 30% 20% 35%;
   grid-template-rows: repeat(1,1fr);
-  width: 350px;
+  width: 300px;
   border-radius: 10px;
-  
+}
+
+.hidden{
+ visibility: hidden;
+}
+.visible {
+display: inline-block;
+  visibility: visible;
+  margin: auto;
+  right: 10%;
+  bottom: -80%;
+  width: 120px;
+}
+
+.button-container {
+  display: grid;
+  grid-template-columns: 150px 150px;
+  grid-template-rows: 50px;
+  position: absolute;
+  margin: auto;
+  right: 10%;
+  bottom: -80%;
+}
+.slide-container {
+  display: inline;
+  align-content: right;
 }
 
 .rainbowM{
  position: relative;
- left: 7px;
  margin: auto;
-height: 90px;
-width: 90px;
+height: 100%;
+width: 100%;
+justify-content: center
+}
+.chro {
+  font-family: 'Anton', sans-serif;
+  font-size: 45px;
+  justify-content: center;
+}
+
+.atch {
+  font-family: 'Dancing Script', cursive;
+  font-size: 60px;
+  justify-content: center;
 }
 
 .headertext {
-  font-size: 60px;
  margin: auto;
 color: white;
 z-index: 4;
@@ -69,9 +111,9 @@ z-index: 4;
 
 .slidelist {
   display: inline-block; 
-  position: absolute;
+  /* position: absolute;
   left: 35%;
-bottom: -1%;
+bottom: -1%; */
 
 
 }

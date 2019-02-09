@@ -1,3 +1,4 @@
+import './App.js';
 
 const db = require('../models/matchingPic');
 var cors = require('cors')
@@ -14,9 +15,10 @@ module.exports = function (app) {
   app.post("/unsplash", (req, res) => {
     // get query from request
     const query = req.body.query;
+    const page = req.body.page
     axios
       .get(
-        `https://api.unsplash.com/search/photos/?page=1&per_page=10&query=${query}&client_id=b814057aac4ca06658cabe4ed1f1e80bf7c2553a2f616bbbabe7a2d6e9e79f1a`
+        `https://api.unsplash.com/search/photos/?page=${page}&per_page=10&query=${query}&client_id=b814057aac4ca06658cabe4ed1f1e80bf7c2553a2f616bbbabe7a2d6e9e79f1a`
       )
       .then(response => {
         console.log(response.data);

@@ -6,6 +6,7 @@ import { SketchPicker } from 'react-color';
 import logo from './assets/rainbowM.jpg'
 import Vibrant from 'node-vibrant'
 import Palette from 'react-palette';
+import classNames from 'classnames';
 
 
 const dotenv = require('dotenv')
@@ -20,11 +21,17 @@ const unsplashId = new Unsplash({
 
 const Header = (props) => (
   <div className='header'>
-  <div className ='header-logo'>
-   <h3 className ='headertext'>chro</h3> <img className='rainbowM'src={logo}/><h3 className ='headertext'>atch</h3>
-   </div>
-    <ImgListSlide data={props.data} />
-   
+    <div className ='logo-container'>
+      <div className='header-logo'>
+        <h3 className='headertext chro'>chro</h3> <img className='rainbowM' src={logo} /><h3 className='headertext atch'>atch</h3>
+      </div>
+    </div>
+
+    <div className='slide-container'>
+      <ImgListSlide data={props.data} />
+    </div>
+
+
   </div>
 )
 
@@ -65,27 +72,6 @@ const ImgListSlide = props => {
   );
 };
 
-// const SearchForm = (props) => (
-//   <div>
-//     <form className="search-form" onSubmit={props.handleSubmit}>
-//       <label className="is-hidden" htmlFor="search">Search</label>
-//       <input
-//         type="search"
-//         onChange={props.changeHandler}
-//         value={props.value}
-//         name="search"
-//         placeholder="Search..."
-//       />
-//       <button type="submit" id="submit" className="search-button">
-//         <i className="material-icons icn-search">search</i>
-//       </button>
-//       <button type="submit" onClick={props.getPalette}>
-//         <i className="material-icons icn-search">get palette</i>
-//       </button>
-//     </form>
-//   </div>
-
-// );
 
 
 
@@ -164,10 +150,11 @@ const generatePalettes = (img) => (
 );
 
 const NextPrev = (props) => (
-  <div className='list-container' >
-    <button className=''>Previous Page</button><button className=''>Next Page</button>
-  </div>
   
+  <div className='list-container' >
+    <button onClick={props.prevPage}>Previous Page</button><button className='' onClick={props.nextPage}>Next Page</button>
+  </div>
+
 )
 
 
@@ -191,18 +178,18 @@ const ImgList = props => {
   }
   return (
     <div>
-<div className='list-container'>
-      <ul className="img-list" >
+      <div className='list-container'>
+        <ul className="img-list" >
 
-        {imgs}
-      {/* <NextPrev /> */}
-      </ul>
-  
+          {imgs}
+          {/* <NextPrev style = {props.style} nextPage={props.nextPage} prevPage={props.prevPage} /> */}
+        </ul>
+
+      </div>
+
     </div>
 
-    </div>
-    
- 
+
 
   );
 };
@@ -211,20 +198,18 @@ const ImgList = props => {
 class App extends Component {
 
   state = {
-    input: '',
     color: '#fff',
+    input: '',
     refinedColor: '',
+    page: 1,
     displayColorPicker1: false,
     imgs: [],
     slideshowImgs: [],
-    results: [],
-    searchText: '',
     loadingState: true,
-    palette: {},
+    navbuttons: true,
     loaded: false,
     error: false
   };
-
 
   onSearchChange = e => {
     this.setState({ searchText: e.target.value });
@@ -232,8 +217,8 @@ class App extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    this.setState({ imgs: '' })
-    this.performSearch(this.state.refinedColor);
+    this.setState({ imgs: [], page: 1})
+    this.performSearch(this.state.refinedColor, this.state.page);
     e.currentTarget.reset();
   };
 
@@ -320,7 +305,8 @@ class App extends Component {
       ['#8F00FF', 'Violet'],
       ['#F5DEB3', 'Wheat'],
       ['#FFFFFF', 'White'],
-      ['#FFFF00', 'Yellow']
+      ['#FFFF00', 'Yellow'],
+      ['#C3E61C', 'Yellow']
     ]
     //Convert to RGB, then R, G, B
     var color_rgb = hex2rgb(stateColor)
@@ -387,7 +373,8 @@ class App extends Component {
   };
 
   handleClose1 = () => {
-    this.setState({ displayColorPicker1: false })
+    this.setState({ displayColorPicker1: false, page: 0 })
+
   };
 
   componentWillMount() {
@@ -405,20 +392,28 @@ class App extends Component {
 
   async componentDidMount() {
     const imgs = await $.post("/unsplash", { query: this.state.refinedColor });
+    this.nextPage()
     this.setState({ imgs: imgs.data.results });
 
   }
 
+  nextPage = (query, page) => {
+    this.setState({ page: this.state.page + 1, query: this.state.refinedColor }, this.performSearch(query, page))
+  }
+  prevPage = () => {
+    if (this.state.page > 1) {
+      this.setState({ page: this.state.page - 1, query: this.state.refinedColor }, this.performSearch)
+    }
+  }
 
-
-  performSearch = (query = this.state.refinedColor) => {
+  performSearch = (query = this.state.refinedColor, page = this.state.page) => {
     $
       .get(
-        `https://api.unsplash.com/search/photos/?page=1&per_page=10&query=${query}&client_id=b814057aac4ca06658cabe4ed1f1e80bf7c2553a2f616bbbabe7a2d6e9e79f1a`
+        `https://api.unsplash.com/search/photos/?page=${page}&per_page=10&query=${query}&client_id=b814057aac4ca06658cabe4ed1f1e80bf7c2553a2f616bbbabe7a2d6e9e79f1a`
       )
       .then(data => {
         console.log(data)
-        this.setState({ imgs: data.data.results, loadingState: false });
+        this.setState({ imgs: data.data.results, loadingState: false, navbuttons: false  });
       })
       .catch(err => {
         console.log('Error happened during fetching!', err);
@@ -448,7 +443,7 @@ class App extends Component {
       )
       .then(data => {
         console.log(data)
-        this.setState({ slideshowImgs: data.data.results, loadingState: false });
+        this.setState({ slideshowImgs: data.data.results, loadingState: false, });
       })
       .catch(err => {
         console.log('Error happened during fetching!', err);
@@ -470,7 +465,8 @@ class App extends Component {
       left: '0px',
     }
 
-
+    var className = this.state.navbuttons ? 'hidden' : 'visible';
+    
 
     return (
 
@@ -502,10 +498,21 @@ class App extends Component {
         <div className="main-content">
           {this.state.loadingState
             ? <p></p>
-            : <ImgList saveImage={this.savePhoto} data={this.state.imgs}
-            />  }<NextPrev />
-        </div>
-       
+            : <ImgList
+              saveImage={this.savePhoto}
+              data={this.state.imgs}
+              nextPage={this.nextPage}
+              prevPage={this.prevPage}
+            /> } <div className='list-container' >
+            <div className ='button-container'>
+            <div><button onClick={this.prevPage} className={className}>Previous Page</button></div>
+            <div><button className={className} onClick={this.nextPage}>Next Page</button></div>
+            </div>
+            
+          </div>
+        
+        </div> 
+
       </div>
 
     );
