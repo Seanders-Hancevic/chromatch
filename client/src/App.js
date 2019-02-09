@@ -77,7 +77,8 @@ const ImgListSlide = props => {
 
 const ColorSelectBox = (props) => (
   <div className='bigBox main'>
-    Pick a color!
+  <div className ='colorbox text'>Pick a color!</div>
+    
     <div>
       <div className='color-box one' style={props.style1} onClick={props.clickHandler1} >
       </div>
@@ -149,15 +150,6 @@ const generatePalettes = (img) => (
   </Palette>
 );
 
-const NextPrev = (props) => (
-  
-  <div className='list-container' >
-    <button onClick={props.prevPage}>Previous Page</button><button className='' onClick={props.nextPage}>Next Page</button>
-  </div>
-
-)
-
-
 
 const ImgList = props => {
   const results = props.data;
@@ -202,6 +194,7 @@ class App extends Component {
     input: '',
     refinedColor: '',
     page: 1,
+    slidePage: (Math.floor(Math.round(Math.random() * 100) + 1)),
     displayColorPicker1: false,
     imgs: [],
     slideshowImgs: [],
@@ -217,7 +210,7 @@ class App extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    this.setState({ imgs: [], page: 1})
+    this.setState({imgs: [], page: 1})
     this.performSearch(this.state.refinedColor, this.state.page);
     e.currentTarget.reset();
   };
@@ -254,8 +247,10 @@ class App extends Component {
       ['#0047AB', 'Cobalt blue'],
       ['#B87333', 'Copper'],
       ['#DC143C', 'Crimson'],
+      ['#A93636', 'Crimson'],
       ['#00FFFF', 'Cyan'],
       ['#46423C', 'Dark grey'],
+      ['#3F5739', 'Dark green'],
       ['#7DF9FF', 'Electric blue'],
       ['#50C878', 'Emerald'],
       ['#228B22', 'Dark green'],
@@ -271,6 +266,7 @@ class App extends Component {
       ['#B57EDC', 'Mauve'],
       ['#C8A2C8', 'Lilac'],
       ['#BFFF00', 'Lime green'],
+      ['#F2AA51', 'Light orange'],
       ['#FF00FF', 'Magenta'],
       ['#800000', 'Maroon'],
       ['#E0B0FF', 'Mauve'],
@@ -305,6 +301,7 @@ class App extends Component {
       ['#8F00FF', 'Violet'],
       ['#F5DEB3', 'Wheat'],
       ['#FFFFFF', 'White'],
+      ['#F7ECEC', 'White'],
       ['#FFFF00', 'Yellow'],
       ['#C3E61C', 'Yellow']
     ]
@@ -377,9 +374,9 @@ class App extends Component {
 
   };
 
-  componentWillMount() {
+  componentWillMount(page= this.state.slidePage) {
     $.get(
-      `https://api.unsplash.com/search/photos/?page=1&per_page=10&query=wallpapers&client_id=b814057aac4ca06658cabe4ed1f1e80bf7c2553a2f616bbbabe7a2d6e9e79f1a`
+      `https://api.unsplash.com/search/photos/?page=${page}&per_page=10&query=wallpapers&client_id=b814057aac4ca06658cabe4ed1f1e80bf7c2553a2f616bbbabe7a2d6e9e79f1a`
     )
       .then(data => {
         console.log(data)
@@ -398,11 +395,11 @@ class App extends Component {
   }
 
   nextPage = (query, page) => {
-    this.setState({ page: this.state.page + 1, query: this.state.refinedColor }, this.performSearch(query, page))
+    this.setState({ page: this.state.page + 1, query: this.state.refinedColor, imgs: '' }, this.performSearch(query, page))
   }
   prevPage = () => {
     if (this.state.page > 1) {
-      this.setState({ page: this.state.page - 1, query: this.state.refinedColor }, this.performSearch)
+      this.setState({ page: this.state.page - 1, query: this.state.refinedColor, imgs:'' }, this.performSearch)
     }
   }
 
@@ -435,10 +432,10 @@ class App extends Component {
       .post(`/api/matchingPic/`, { data: saveImage })
   }
 
-  slideshowSearch = (query = 'wallpapers') => {
+  slideshowSearch = (query = 'wallpapers', page = this.state.slidePage) => {
     $
       .get(
-        `https://api.unsplash.com/search/photos/?page=1&per_page=10&query=${query}&client_id=b814057aac4ca06658cabe4ed1f1e80bf7c2553a2f616bbbabe7a2d6e9e79f1a`
+        `https://api.unsplash.com/search/photos/?page=${page}&per_page=10&query=${query}&client_id=b814057aac4ca06658cabe4ed1f1e80bf7c2553a2f616bbbabe7a2d6e9e79f1a`
 
       )
       .then(data => {

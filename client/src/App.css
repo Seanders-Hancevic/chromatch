@@ -25,20 +25,21 @@ background-color: gray;
 }
 
 .logo-container {
-  width: 30%;
-  height:225px;
+  width: 50%;
+  height: 250px;
+  
 }
  
 .header-logo{
-  top: 60%;
+  top: 50%;
   left: 10%;
   position: relative;
   justify-content: center;
   display: grid;
   background-color: black;
-  grid-template-columns: 30% 20% 35%;
+  grid-template-columns: 30% 20% 32%;
   grid-template-rows: repeat(1,1fr);
-  width: 300px;
+  width: 400px;
   border-radius: 10px;
 }
 
@@ -50,7 +51,7 @@ display: inline-block;
   visibility: visible;
   margin: auto;
   right: 10%;
-  bottom: -80%;
+  bottom: -90%;
   width: 120px;
 }
 
@@ -61,11 +62,13 @@ display: inline-block;
   position: absolute;
   margin: auto;
   right: 10%;
-  bottom: -80%;
+  bottom: -90%;
 }
 .slide-container {
-  display: inline;
-  align-content: right;
+  position: relative;
+  display: inline-block;
+  left: 10%;
+ 
 }
 
 .rainbowM{
@@ -77,13 +80,13 @@ justify-content: center
 }
 .chro {
   font-family: 'Anton', sans-serif;
-  font-size: 45px;
+  font-size: 50px;
   justify-content: center;
 }
 
 .atch {
   font-family: 'Dancing Script', cursive;
-  font-size: 60px;
+  font-size: 75px;
   justify-content: center;
 }
 
@@ -101,6 +104,18 @@ z-index: 4;
   margin-left: 10px;
 }
 
+.text {
+  position: relative;
+  align-content: center;
+  left: 35%;
+}
+
+.main{
+
+  margin: auto;
+  font-family: 'Anton', sans-serif;
+  font-size: 20px;
+}
 
 .slide-box{
   height: 100px;
@@ -226,5 +241,5 @@ width: auto;
 .sketch-pop{
   position: absolute;
   left: 15%;
-  bottom: 20%;
+  bottom: 17%;
 }
