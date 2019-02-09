@@ -274,6 +274,7 @@ class App extends Component {
       ['#000080', 'Navy blue'],
       ['#808000', 'Olive green'],
       ['#FF6600', 'Orange'],
+      ['#E39F18', 'Orange'],
       ['#ED6D30', 'Orange'],
       ['#FF4500', 'Orange-red'],
       ['#CCCCFF', 'Periwinkle'],
