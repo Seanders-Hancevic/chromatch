@@ -1,22 +1,10 @@
 import React, { Component } from 'react';
 import './App.css';
-import Unsplash from 'unsplash-js';
 import * as $ from 'axios';
 import { SketchPicker } from 'react-color';
 import logo from './assets/rainbowM.jpg'
-import Vibrant from 'node-vibrant'
 import Palette from 'react-palette';
-import classNames from 'classnames';
 
-
-const dotenv = require('dotenv')
-
-
-const unsplashId = new Unsplash({
-  applicationId: process.env.APPLICATION_ID,
-  secret: process.env.SECRET
-
-});
 
 
 const Header = (props) => (
@@ -115,33 +103,45 @@ const generatePalettes = (img) => (
     {palette => (
       <div className='palette element'>
         <div>
-          <div className='palette darkVibrant box' style={{ backgroundColor: palette.darkVibrant }}></div>
+          <div className='palette darkVibrant box' style={{ backgroundColor: palette.darkVibrant }}>
+          <span class="hexText">{palette.darkVibrant}</span>
+          </div>
           <p className='palette name'>#DarkVibrant</p>
         </div>
 
         <div>
-          <div className='palette lightVibrant box' style={{ backgroundColor: palette.lightVibrant }}></div>
+          <div className='palette lightVibrant box' style={{ backgroundColor: palette.lightVibrant }}>
+          <span class="hexText">{palette.lightVibrant}</span>
+          </div>
           <p className='palette name'>#LightVibrant</p>
         </div>
 
         <div className=''>
-          <div className='palette Vibrant box' display='inline-block' style={{ backgroundColor: palette.vibrant }}></div>
+          <div className='palette Vibrant box' display='inline-block' style={{ backgroundColor: palette.vibrant }}>
+          <span class="hexText">{palette.vibrant}</span>
+          </div>
           <p className='palette name'>#Vibrant</p>
 
         </div>
 
         <div>
-          <div className='palette muted box' style={{ backgroundColor: palette.muted }}></div>
+          <div className='palette muted box' style={{ backgroundColor: palette.muted }}>
+          <span class="hexText">{palette.muted}</span>
+          </div>
           <p className='palette name'>#Muted</p>
         </div>
 
         <div>
-          <div className='palette lightMuted box' style={{ backgroundColor: palette.lightMuted }}></div>
+          <div className='palette lightMuted box' style={{ backgroundColor: palette.lightMuted }}>
+          <span class="hexText">{palette.lightMuted}</span>
+          </div>
           <p className='palette name'>#LightMuted</p>
         </div>
 
         <div>
-          <div className='palette darkMuted box' style={{ backgroundColor: palette.darkMuted }}></div>
+          <div className='palette darkMuted box' style={{ backgroundColor: palette.darkMuted }}>
+          <span class="hexText">{palette.darkMuted}</span>
+          </div>
           <p className='palette name'>#DarkMuted</p>
         </div>
 
@@ -176,13 +176,8 @@ const ImgList = props => {
           {imgs}
           {/* <NextPrev style = {props.style} nextPage={props.nextPage} prevPage={props.prevPage} /> */}
         </ul>
-
       </div>
-
     </div>
-
-
-
   );
 };
 
@@ -193,7 +188,7 @@ class App extends Component {
     color: '#fff',
     input: '',
     refinedColor: '',
-    page: 1,
+    page: '',
     slidePage: (Math.floor(Math.round(Math.random() * 100) + 1)),
     displayColorPicker1: false,
     imgs: [],
@@ -266,6 +261,8 @@ class App extends Component {
       ['#B57EDC', 'Mauve'],
       ['#C8A2C8', 'Lilac'],
       ['#BFFF00', 'Lime green'],
+      ['#E1BCBC', 'Light Pink'],
+      ['#F4B0B0', 'Light Pink'],
       ['#F2AA51', 'Light orange'],
       ['#FF00FF', 'Magenta'],
       ['#800000', 'Maroon'],
@@ -396,11 +393,11 @@ class App extends Component {
   }
 
   nextPage = (query, page) => {
-    this.setState({ page: this.state.page + 1, query: this.state.refinedColor, imgs: '' }, this.performSearch(query, page))
+    this.setState({ page: this.state.page + 1, query: this.state.refinedColor}, this.performSearch(query, page))
   }
   prevPage = () => {
     if (this.state.page > 1) {
-      this.setState({ page: this.state.page - 1, query: this.state.refinedColor, imgs:'' }, this.performSearch)
+      this.setState({ page: this.state.page - 1, query: this.state.refinedColor}, this.performSearch)
     }
   }
 

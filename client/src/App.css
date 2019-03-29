@@ -219,8 +219,26 @@ margin-left: 20px;
   margin-left: 20px;
   vertical-align: top;
   position: relative;
-
 }
+
+.box .hexText {
+  visibility: hidden;
+  width: 150px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: relative;
+  z-index: 1;
+  top: -5px;
+  left: 850%; 
+}
+
+.box:hover .hexText {
+  visibility: visible;
+}
+
 .element{
   bottom: 25%;
 border: solid black 1px;
